@@ -8,10 +8,12 @@ class TestRoom(unittest.TestCase):
     def setUp (self):
         self.room = Room("CodeClan Caraoke", 8)
 
-        self.first_guest = Guest("Brian", 220)
-        self.second_guest = Guest("Charlotte", 17)
+        self.song_one = Song("Dancing Queen", "ABBA", 4)
+        self.song_two = Song("Wonderwall", "Oasis", 4)
 
-        self.song = Song("Wonderwall", "Oasis", 4)
+        self.first_guest = Guest("Brian", 220, self.song_one)
+        self.second_guest = Guest("Charlotte", 17, self.song_two)
+
 
     def test_room_has_name(self):
         self.assertEqual("CodeClan Caraoke", self.room.name)
@@ -46,12 +48,19 @@ class TestRoom(unittest.TestCase):
         self.assertEqual([], self.room.guest_list)
     
     def test_add_song_to_playlist(self):
-        self.room.add_song(self.song)
-        self.assertEqual([self.song], self.room.playlist)
+        self.room.add_song(self.song_one)
+        self.assertEqual([self.song_one], self.room.playlist)
 
     def test_room_max_capacity(self):
-        #check in 10 guests to a room with a capacity of 8
+        #attempt to check in 10 guests to a room with a capacity of 8
         for i in range(10):
             self.room.check_guest_in(self.first_guest, 10)
 
         self.assertEqual(8, len(self.room.guest_list))
+
+    def test_guests_check_playlist(self):
+        self.room.add_song(self.song_one)
+        self.room.add_song(self.song_one)
+        self.assertEqual("Woopee!", self.first_guest.react_to_playlist(self.room.playlist))
+        self.assertEqual("blood-curdling scream", self.second_guest.react_to_playlist(self.room.playlist))
+        
