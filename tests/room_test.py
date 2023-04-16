@@ -27,6 +27,9 @@ class TestRoom(unittest.TestCase):
     def test_room_has_no_songs(self):
         self.assertEqual([], self.room.playlist)
 
+    def test_room_has_tab(self):
+        self.assertEqual({}, self.room.tab)
+
     def test_guest_check_in__enough_money(self):
         self.room.check_guest_in(self.first_guest, 20)
         self.assertEqual([self.first_guest], self.room.guest_list)
@@ -63,4 +66,27 @@ class TestRoom(unittest.TestCase):
         self.room.add_song(self.song_one)
         self.assertEqual("Woopee!", self.first_guest.react_to_playlist(self.room.playlist))
         self.assertEqual("blood-curdling scream", self.second_guest.react_to_playlist(self.room.playlist))
-        
+
+    def test_add_to_tab__successful(self):
+        self.room.add_to_tab("beer", self.first_guest)
+        self.room.add_to_tab("wine", self.first_guest)
+        self.assertEqual(11, self.room.tab[self.first_guest.name])
+        self.assertEqual(209, self.first_guest.wallet)
+
+    def test_add_to_tab__item_not_on_menu(self):
+        add_to_tab = self.room.add_to_tab("t-shirt", self.first_guest)
+        #make sure function returns 'None'
+        self.assertEqual(None, add_to_tab)
+        #and no money is taken out of guest's wallet
+        self.assertEqual(220, self.first_guest.wallet)
+
+    def test_add_to_tab__wallet_is_empty(self):
+        self.room.add_to_tab("beer", self.second_guest)
+        self.room.add_to_tab("burger", self.second_guest)
+        add_to_tab = self.room.add_to_tab("inflatable microphone", self.second_guest)
+        #make sure function returns 'None'
+        self.assertEqual(None, add_to_tab)
+        #make sure earlier tab items added correctly
+        self.assertEqual(15, self.room.tab[self.second_guest.name])
+        #and no money is taken out of guest's wallet for unaffordable item
+        self.assertEqual(2, self.second_guest.wallet)
